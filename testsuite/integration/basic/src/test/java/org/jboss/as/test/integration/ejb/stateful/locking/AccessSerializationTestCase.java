@@ -20,6 +20,7 @@ import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import java.util.concurrent.ThreadFactory;
 
 /**
  * Tests that multiple calls to a SFSB are serialized correctly in both the presence and the absence of a transaction
@@ -47,8 +48,10 @@ public class AccessSerializationTestCase {
 
     @Test
     public void testConcurrentAccessTransaction() throws Exception {
+ThreadFactory threadFactory = Thread.ofVirtual().factory();
+
         ConcurrencySFSB sfsb = (ConcurrencySFSB)initialContext.lookup("java:module/" + ConcurrencySFSB.class.getSimpleName() );
-        ExecutorService executorService = Executors.newFixedThreadPool(NUM_THREADS);
+        ExecutorService executorService = Executors.newThreadPerTaskExecutor(threadFactory);
         Future[] results = new Future[NUM_THREADS];
         for(int i = 0; i < NUM_THREADS; ++i) {
             results[i] = executorService.submit(new CallingClassTransaction(sfsb));
@@ -56,13 +59,16 @@ public class AccessSerializationTestCase {
         for(int i = 0; i < NUM_THREADS; ++i) {
             results[i].get();
         }
-        Assert.assertEquals(NUM_THREADS * SUM_AMOUNT, sfsb.getCounter());
-    }
+        Assert.assertEquals(NUM_THREADS * SUM_AMOUNT, sfsb.getCounter());}
+    
 
-    @Test
+    
+@Test
     public void testConcurrentAccessNoTransaction() throws Exception {
+ThreadFactory threadFactory = Thread.ofVirtual().factory();
+
         ConcurrencySFSB sfsb = (ConcurrencySFSB)initialContext.lookup("java:module/" + ConcurrencySFSB.class.getSimpleName() );
-        ExecutorService executorService = Executors.newFixedThreadPool(NUM_THREADS);
+        ExecutorService executorService = Executors.newThreadPerTaskExecutor(threadFactory);
         Future[] results = new Future[NUM_THREADS];
         for(int i = 0; i < NUM_THREADS; ++i) {
             results[i] = executorService.submit(new CallingClassNoTransaction(sfsb));
@@ -70,10 +76,11 @@ public class AccessSerializationTestCase {
         for(int i = 0; i < NUM_THREADS; ++i) {
             results[i].get();
         }
-        Assert.assertEquals(NUM_THREADS * SUM_AMOUNT, sfsb.getCounter());
-    }
+        Assert.assertEquals(NUM_THREADS * SUM_AMOUNT, sfsb.getCounter());}
+    
 
-    private class CallingClassTransaction implements Runnable {
+    
+private class CallingClassTransaction implements Runnable {
 
         private final ConcurrencySFSB sfsb;
 

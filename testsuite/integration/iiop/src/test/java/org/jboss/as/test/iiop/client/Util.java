@@ -25,6 +25,7 @@ import com.arjuna.ats.jts.OTSManager;
 import com.arjuna.orbportability.OA;
 import com.arjuna.orbportability.ORB;
 import com.sun.corba.se.impl.orbutil.ORBConstants;
+import java.util.concurrent.ThreadFactory;
 
 public class Util {
     public static final String HOST = NetworkUtils.formatPossibleIpv6Address(System.getProperty("node1", "localhost"));
@@ -35,6 +36,8 @@ public class Util {
     private static ExecutorService recoveryManagerPool;
 
     public static void presetOrb() throws InvalidName, SystemException {
+ThreadFactory threadFactory = Thread.ofVirtual().factory();
+
         Properties properties = new Properties();
         properties.setProperty(ORBConstants.PERSISTENT_SERVER_PORT_PROPERTY, "15151");
         properties.setProperty(ORBConstants.ORB_SERVER_ID_PROPERTY, "1");
@@ -58,18 +61,19 @@ public class Util {
 
         // Recovery manager has to be started on client when we want recovery
         // and we start the transaction on client
-        recoveryManagerPool = Executors.newFixedThreadPool(1);
+        recoveryManagerPool = Executors.newThreadPerTaskExecutor(threadFactory);
         recoveryManagerPool.submit(new Callable<String>() {
             @Override
             public String call() throws Exception {
                 RecoveryManager.main(new String[] { "-test" });
                 return "Running recovery manager";
             }
-        });
+        });}
 
-    }
+    
 
-    public static void tearDownOrb() {
+    
+public static void tearDownOrb() {
         ORBManager.reset();
         if (recoveryManagerPool != null) {
             recoveryManagerPool.shutdown();

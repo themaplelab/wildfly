@@ -37,6 +37,7 @@ import org.xnio.OptionMap;
 import org.xnio.Options;
 import org.xnio.Xnio;
 import org.xnio.XnioWorker;
+import java.util.concurrent.ThreadFactory;
 
 class RuntimeInitialization extends DefaultInitialization {
     private final Map<ServiceName, Supplier<Object>> values;
@@ -66,6 +67,8 @@ class RuntimeInitialization extends DefaultInitialization {
 
     @Override
     protected void addExtraServices(ServiceTarget target) {
+ThreadFactory threadFactory = Thread.ofVirtual().factory();
+
         // AbstractUndertowSubsystemTestCase.testRuntime(...) methods require the recording of specific service values, and requires starting specific on-demand services
         // TODO Consider removing those testRuntime(...) methods - the value of such testing is questionable
         if (this.values != null) {
@@ -99,7 +102,7 @@ class RuntimeInitialization extends DefaultInitialization {
             builder1.setInstance(
                     new WorkerService(
                             workerConsumer1,
-                            () -> Executors.newFixedThreadPool(1),
+                            () -> Executors.newThreadPerTaskExecutor(threadFactory),
                             Xnio.getInstance().createWorkerBuilder().populateFromOptions(OptionMap.builder().set(Options.WORKER_IO_THREADS, 2).getMap())));
             builder1.install();
 
@@ -108,7 +111,7 @@ class RuntimeInitialization extends DefaultInitialization {
             builder2.setInstance(
                     new WorkerService(
                             workerConsumer2,
-                            () -> Executors.newFixedThreadPool(1),
+                            () -> Executors.newThreadPerTaskExecutor(threadFactory),
                             Xnio.getInstance().createWorkerBuilder().populateFromOptions(OptionMap.builder().set(Options.WORKER_IO_THREADS, 2).getMap())));
             builder2.install();
 
@@ -142,11 +145,12 @@ class RuntimeInitialization extends DefaultInitialization {
             sb5.install();
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
-        }
+        }}
 
-    }
+    
 
-    private static final class NullService implements org.jboss.msc.service.Service<ControlledProcessStateService> {
+    
+private static final class NullService implements org.jboss.msc.service.Service<ControlledProcessStateService> {
         @Override
         public void start(StartContext context) {
 

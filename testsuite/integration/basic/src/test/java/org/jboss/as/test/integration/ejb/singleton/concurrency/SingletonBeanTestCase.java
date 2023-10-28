@@ -33,6 +33,7 @@ import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import java.util.concurrent.ThreadFactory;
 
 /**
  * Testcase for testing the basic functionality of an EJB3 singleton session bean.
@@ -140,8 +141,10 @@ public class SingletonBeanTestCase {
     }
 
     public void testReadOnlySingleton(ReadOnlySingleton readOnlySingleton) throws Exception {
+ThreadFactory threadFactory = Thread.ofVirtual().factory();
+
         final int NUM_THREADS = 10;
-        ExecutorService executor = Executors.newFixedThreadPool(NUM_THREADS);
+        ExecutorService executor = Executors.newThreadPerTaskExecutor(threadFactory);
         @SuppressWarnings("unchecked")
         Future<String>[] results = new Future[NUM_THREADS];
         for (int i = 0; i < NUM_THREADS; i++) {
@@ -150,8 +153,8 @@ public class SingletonBeanTestCase {
         for (int i = 0; i < NUM_THREADS; i++) {
             String result = results[i].get(10, TimeUnit.SECONDS);
             Assert.assertEquals("Unexpected value from singleton bean", String.valueOf(i), result);
-        }
-    }
+        }}
+    
 
     /**
      * Tests that invocation on a singleton bean method with write lock results in ConcurrentAccessTimeoutException
@@ -159,8 +162,11 @@ public class SingletonBeanTestCase {
      *
      * @throws Exception
      */
-    @Test
+    
+@Test
     public void testLongWritesSingleton() throws Exception {
+ThreadFactory threadFactory = Thread.ofVirtual().factory();
+
 
         // let's invoke a bean method (with WRITE lock semantics) which takes a long time to complete
         final ExecutorService singleThreadExecutor = Executors.newSingleThreadExecutor();
@@ -168,7 +174,7 @@ public class SingletonBeanTestCase {
         // let's now try and invoke on this bean while the previous operation is in progress.
         // we expect a ConcurrentAccessTimeoutException
         final int NUM_THREADS = 10;
-        final ExecutorService nextTenInvocations = Executors.newFixedThreadPool(NUM_THREADS);
+        final ExecutorService nextTenInvocations = Executors.newThreadPerTaskExecutor(threadFactory);
         Future<?>[] results = new Future[NUM_THREADS];
         // let the 10 threads invoke on the bean's method (which has WRITE lock semantics) which has an accesstimeout value
         // set on it
@@ -197,10 +203,11 @@ public class SingletonBeanTestCase {
         }
 
         assertEquals(1, passed.size());
-        assertEquals(NUM_THREADS - 1, throwables.size());
-    }
+        assertEquals(NUM_THREADS - 1, throwables.size());}
+    
 
-    private class ReadOnlySingletonBeanInvoker implements Callable<String> {
+    
+private class ReadOnlySingletonBeanInvoker implements Callable<String> {
 
         private ReadOnlySingleton bean;
 

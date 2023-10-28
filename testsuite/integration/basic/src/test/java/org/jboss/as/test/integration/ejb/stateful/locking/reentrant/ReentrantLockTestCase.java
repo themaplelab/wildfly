@@ -23,6 +23,7 @@ import jakarta.transaction.UserTransaction;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
 
 /**
  * Tests that multiple calls to a SFSB in the same TX release the lock correctly.
@@ -60,7 +61,9 @@ public class ReentrantLockTestCase {
 
     @Test
     public void testStatefulTimeoutFromAnnotation() throws Exception {
-        ExecutorService executorService = Executors.newFixedThreadPool(NUM_THREADS);
+ThreadFactory threadFactory = Thread.ofVirtual().factory();
+
+        ExecutorService executorService = Executors.newThreadPerTaskExecutor(threadFactory);
         Future[] results = new Future[NUM_THREADS];
         for(int i = 0; i < NUM_THREADS; ++i) {
             results[i] = executorService.submit(new CallingClass());
@@ -68,11 +71,12 @@ public class ReentrantLockTestCase {
 
         for(int i = 0; i < NUM_THREADS; ++i) {
             results[i].get();
-        }
-    }
+        }}
+    
 
 
-    private class CallingClass implements Runnable {
+    
+private class CallingClass implements Runnable {
 
 
         @Override

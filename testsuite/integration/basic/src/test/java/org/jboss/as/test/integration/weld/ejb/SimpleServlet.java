@@ -28,6 +28,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.jboss.stdio.WriterOutputStream;
+import java.util.concurrent.ThreadFactory;
 
 /**
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
@@ -43,12 +44,14 @@ public class SimpleServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+ThreadFactory threadFactory = Thread.ofVirtual().factory();
+
         final String msg = req.getParameter("input");
 
         // the first call needs to be concurrent
         //bean.setMessage(msg);
 
-        final ExecutorService executor = Executors.newFixedThreadPool(2);
+        final ExecutorService executor = Executors.newThreadPerTaskExecutor(threadFactory);
         final CountDownLatch latch = new CountDownLatch(1);
         final Future<String>[] futures = new Future[2];
         for (int i = 0; i < futures.length; i++) {
@@ -91,10 +94,11 @@ public class SimpleServlet extends HttpServlet {
         encoder.writeObject(results);
         encoder.writeObject(exceptions);
         encoder.writeObject(sharedContext);
-        encoder.close();
-    }
+        encoder.close();}
+    
 
-    @PostConstruct
+    
+@PostConstruct
     public void postConstruct() {
         this.sharedContext = propagated.get();
     }

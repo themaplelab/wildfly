@@ -21,6 +21,7 @@ import org.jboss.as.ejb3.pool.StatelessObjectFactory;
 import org.jboss.as.ejb3.pool.common.MockBean;
 import org.jboss.as.ejb3.pool.common.MockFactory;
 import org.junit.Test;
+import java.util.concurrent.ThreadFactory;
 
 /**
  * Comment
@@ -64,6 +65,8 @@ public class StrictMaxUnitTestCase {
      */
     @Test
     public void testMultiThread() throws Exception {
+ThreadFactory threadFactory = Thread.ofVirtual().factory();
+
         MockBean.reset();
         StatelessObjectFactory<MockBean> factory = new MockFactory();
         final Pool<MockBean> pool = new StrictMaxPool<MockBean>(factory, 10, 60, TimeUnit.SECONDS);
@@ -89,7 +92,7 @@ public class StrictMaxUnitTestCase {
             }
         };
 
-        ExecutorService service = Executors.newFixedThreadPool(20);
+        ExecutorService service = Executors.newThreadPerTaskExecutor(threadFactory);
         Future<?>[] results = new Future<?>[20];
         for (int i = 0; i < results.length; i++) {
             results[i] = service.submit(task);
@@ -108,10 +111,11 @@ public class StrictMaxUnitTestCase {
 
         assertEquals(20, used.intValue());
         assertEquals(10, MockBean.getPostConstructs());
-        assertEquals(10, MockBean.getPreDestroys());
-    }
+        assertEquals(10, MockBean.getPreDestroys());}
+    
 
-    @Test
+    
+@Test
     public void testTooMany() {
         MockBean.reset();
         StatelessObjectFactory<MockBean> factory = new MockFactory();

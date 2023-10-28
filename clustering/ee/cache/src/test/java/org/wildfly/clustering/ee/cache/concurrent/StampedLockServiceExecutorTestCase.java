@@ -20,6 +20,7 @@ import org.junit.Test;
 import org.wildfly.clustering.ee.concurrent.ServiceExecutor;
 import org.wildfly.common.function.ExceptionRunnable;
 import org.wildfly.common.function.ExceptionSupplier;
+import java.util.concurrent.ThreadFactory;
 
 /**
  * @author Paul Ferraro
@@ -179,9 +180,11 @@ public class StampedLockServiceExecutorTestCase {
 
     @Test
     public void concurrent() throws InterruptedException, ExecutionException {
+ThreadFactory threadFactory = Thread.ofVirtual().factory();
+
         ServiceExecutor executor = new StampedLockServiceExecutor();
 
-        ExecutorService service = Executors.newFixedThreadPool(2);
+        ExecutorService service = Executors.newThreadPerTaskExecutor(threadFactory);
         try {
             CountDownLatch executeLatch = new CountDownLatch(1);
             CountDownLatch stopLatch = new CountDownLatch(1);

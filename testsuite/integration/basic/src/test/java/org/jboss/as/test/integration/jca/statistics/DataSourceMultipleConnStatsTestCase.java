@@ -43,6 +43,7 @@ import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.VAL
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.WRITE_ATTRIBUTE_OPERATION;
 import static org.jboss.as.test.integration.management.util.ModelUtil.createOpNode;
 import static org.junit.Assert.assertEquals;
+import java.util.concurrent.ThreadFactory;
 
 /**
  * Tests jdbc statistics of a data source with multiple connections.
@@ -96,7 +97,9 @@ public class DataSourceMultipleConnStatsTestCase {
     @InSequence(1)
     @Test
     public void testDataSourceStatistics() throws Exception {
-        ExecutorService executor = Executors.newFixedThreadPool(3);
+ThreadFactory threadFactory = Thread.ofVirtual().factory();
+
+        ExecutorService executor = Executors.newThreadPerTaskExecutor(threadFactory);
 
         int maxWaitCount = readAttribute("MaxWaitCount").asInt();
         assertEquals(0, maxWaitCount);
@@ -114,8 +117,8 @@ public class DataSourceMultipleConnStatsTestCase {
             assertEquals(2, maxWaitCount);
         } finally {
             executor.shutdown();
-        }
-    }
+        }}
+    
 
     /**
      * Tests data source statistics after clearStatistics operation was executed.
@@ -124,14 +127,17 @@ public class DataSourceMultipleConnStatsTestCase {
      *
      * @throws Exception
      */
-    @InSequence(2)
+    
+@InSequence(2)
     @Test
     public void testClearedDataSourceStatistics() throws Exception {
+ThreadFactory threadFactory = Thread.ofVirtual().factory();
+
 
         // Disable for now on Windows until WFLY-15336 is sorted
         Assume.assumeTrue("WFLY-15336", System.getProperty("os.name").equalsIgnoreCase("Linux"));
 
-        ExecutorService executor = Executors.newFixedThreadPool(1);
+        ExecutorService executor = Executors.newThreadPerTaskExecutor(threadFactory);
 
         this.setConnectionPool();
         executor.execute(sleepServletCall);
@@ -148,10 +154,11 @@ public class DataSourceMultipleConnStatsTestCase {
         assertEquals(5, createdCount);
         assertEquals(4, idleCount);
         assertEquals(1, inUseCount);
-    }
+    
 
-    // /subsystem=datasources/data-source=ExampleDS/statistics=pool:read-attribute(name=AvailableCount)
-    private ModelNode readAttribute(String attributeName) throws Exception {
+    // /subsystem=datasources/data-source=ExampleDS/statistics=pool:read-attribute(name=AvailableCount)}
+    
+private ModelNode readAttribute(String attributeName) throws Exception {
         ModelNode operation = createOpNode("subsystem=datasources/data-source=ExampleDS/statistics=pool/", READ_ATTRIBUTE_OPERATION);
         operation.get(NAME).set(attributeName);
         return ManagementOperations.executeOperation(managementClient.getControllerClient(), operation);

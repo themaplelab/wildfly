@@ -32,6 +32,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import java.util.concurrent.ThreadFactory;
 
 /**
  * Tests the various common use cases of the EJB remote client API
@@ -355,6 +356,8 @@ public class EJBClientAPIUsageTestCase {
      */
     @Test
     public void testNonSerializableResponse() throws InterruptedException, ExecutionException {
+ThreadFactory threadFactory = Thread.ofVirtual().factory();
+
         final StatelessEJBLocator<NonSerialiazableResponseRemote> locator = new StatelessEJBLocator(NonSerialiazableResponseRemote.class, APP_NAME, MODULE_NAME, NonSerializableResponseEjb.class.getSimpleName(), "");
         final NonSerialiazableResponseRemote proxy = EJBClient.createProxy(locator);
 
@@ -374,7 +377,7 @@ public class EJBClientAPIUsageTestCase {
                 return null;
             }
         };
-        final ExecutorService executor = Executors.newFixedThreadPool(10);
+        final ExecutorService executor = Executors.newThreadPerTaskExecutor(threadFactory);
         try {
             final List<Future> tasks = new ArrayList<Future>();
             for (int i = 0; i < 100; ++i) {
@@ -386,7 +389,7 @@ public class EJBClientAPIUsageTestCase {
             }
         } finally {
             executor.shutdown();
-        }
+        }}
 
-    }
+    
 }

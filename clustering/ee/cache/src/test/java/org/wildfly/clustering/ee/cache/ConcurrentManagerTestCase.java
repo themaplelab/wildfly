@@ -16,6 +16,7 @@ import java.util.concurrent.Future;
 import org.junit.Assert;
 import org.junit.Test;
 import org.wildfly.clustering.ee.Manager;
+import java.util.concurrent.ThreadFactory;
 
 /**
  * @author Paul Ferraro
@@ -27,9 +28,11 @@ public class ConcurrentManagerTestCase {
 
     @Test
     public void test() throws InterruptedException, ExecutionException {
+    ThreadFactory threadFactory = Thread.ofVirtual().factory();
+
         Manager<Integer, ManagedObject> manager = new ConcurrentManager<>(ManagedObject::created, ManagedObject::closed);
         List<List<Future<ManagedObject>>> keyFutures = new ArrayList<>(KEYS);
-        ExecutorService executor = Executors.newFixedThreadPool(KEYS);
+        ExecutorService executor = Executors.newThreadPerTaskExecutor(threadFactory);
         try {
             for (int i = 0; i < KEYS; ++i) {
                 List<Future<ManagedObject>> futures = new ArrayList<>(SIZE);

@@ -26,6 +26,7 @@ import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import java.util.concurrent.ThreadFactory;
 
 /**
  * Tests to verify that transaction timeout setting is cleaned up after a http request
@@ -63,14 +64,17 @@ public class TransactionTimeoutLeakTestCase {
      */
     @Test
     public void testUserTransactionTimeoutLeak() throws Exception {
+ThreadFactory threadFactory = Thread.ofVirtual().factory();
+
         final int threadCount = 10;
-        final ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
+        final ExecutorService executorService = Executors.newThreadPerTaskExecutor(threadFactory);
         test(2, threadCount, executorService);
         test(0, threadCount, executorService);
-        executorService.shutdownNow();
-    }
+        executorService.shutdownNow();}
+    
 
-    private void test(int timeout, int threadCount, ExecutorService executorService) throws Exception {
+    
+private void test(int timeout, int threadCount, ExecutorService executorService) throws Exception {
         final String customTimeout = Integer.toString(timeout);
         final String[] expected = new String[threadCount];
         Arrays.fill(expected, timeout > 0 ? customTimeout : String.valueOf(300));

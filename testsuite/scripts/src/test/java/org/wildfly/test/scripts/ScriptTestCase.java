@@ -29,6 +29,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.wildfly.test.common.ServerConfigurator;
 import org.wildfly.test.common.ServerHelper;
+import java.util.concurrent.ThreadFactory;
 
 /**
  * @author <a href="mailto:jperkins@redhat.com">James R. Perkins</a>
@@ -62,10 +63,13 @@ public abstract class ScriptTestCase {
 
     @Before
     public void setup() {
-        service = Executors.newCachedThreadPool();
-    }
+ThreadFactory threadFactory = Thread.ofVirtual().factory();
 
-    @After
+        service = Executors.newThreadPerTaskExecutor(threadFactory);}
+    
+
+    
+@After
     public void cleanup() {
         service.shutdownNow();
     }
