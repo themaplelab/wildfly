@@ -21,7 +21,6 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import java.util.concurrent.ThreadFactory;
 
 /**
  * Test class for AbstractJMSContextTes.
@@ -32,8 +31,6 @@ public class AbstractJMSContextTestCase {
 
     @Test
     public void testGetContext() throws InterruptedException {
-ThreadFactory threadFactory = Thread.ofVirtual().factory();
-
         AbstractJMSContext abstractJMSContext = new AbstractJMSContext() {
         };
 
@@ -59,7 +56,7 @@ ThreadFactory threadFactory = Thread.ofVirtual().factory();
         });
 
         // 100 threads will be trying to create contexts at the same time
-        ExecutorService executor = Executors.newThreadPerTaskExecutor(threadFactory);
+        ExecutorService executor = Executors.newFixedThreadPool(100);
         List<Callable<JMSContext>> tasks = new LinkedList<>();
         for (int i = 0; i < 100; i++) {
             final int j = i;
@@ -87,6 +84,6 @@ ThreadFactory threadFactory = Thread.ofVirtual().factory();
         // When using synchronized (old implementation) we need to wait for 10 seconds to create 10 contexts (serializable creation).
         Assert.assertTrue(executor.isTerminated());
         // Lets check if we only created 10 contexts.
-        Assert.assertEquals(10, adder.intValue());}
-    
+        Assert.assertEquals(10, adder.intValue());
+    }
 }
