@@ -269,7 +269,21 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <configuration>
+                        <skipMain>true</skipMain>
+                        <skip>true</skip>
+                        <compilerArgs>--enable-preview</compilerArgs>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
     <profiles>
         <!-- profile is the same name as the test IPv6 profile for consistency and in case the profile is enabled via
         the profile name rather than the system property. -->
