@@ -30,7 +30,6 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.*;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
 import static org.junit.Assert.assertEquals;
-import java.util.concurrent.ThreadFactory;
 
 /**
  * Tests the use of a custom thread pool with servlet deployments.
@@ -82,9 +81,7 @@ public class ServletThreadPoolSelectionTestCase {
 
     @Test
     public void testExecutor() throws Exception {
-ThreadFactory threadFactory = Thread.ofVirtual().factory();
-
-        ExecutorService executor = Executors.newThreadPerTaskExecutor(threadFactory);
+        ExecutorService executor = Executors.newFixedThreadPool(10);
         try {
             final List<Future<?>> results = new ArrayList<Future<?>>();
             for (int i = 0; i < 100; ++i) {
@@ -104,6 +101,6 @@ ThreadFactory threadFactory = Thread.ofVirtual().factory();
             assertEquals("100", result);
         } finally {
             executor.shutdown();
-        }}
-    
+        }
+    }
 }
