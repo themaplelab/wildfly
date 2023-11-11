@@ -51,6 +51,7 @@ import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertNull;
+import java.util.concurrent.ThreadFactory;
 
 /**
  *
@@ -156,12 +157,14 @@ public class LastNodeToLeaveRemoteEJBTestCase extends AbstractClusteringTestCase
     @Test
     @RunAsClient
     public void testDNRContentsAfterLastNodeToLeave() throws Exception {
+ThreadFactory threadFactory = Thread.ofVirtual().factory();
+
 
         List<Future<?>> futures = new ArrayList<>(THREADS);
         LOGGER.debugf("%n *** Starting test case test()%n");
         LOGGER.debugf("*** Started nodes = %s", getStartedNodes());
 
-        ExecutorService executorService = Executors.newFixedThreadPool(THREADS);
+        ExecutorService executorService = Executors.newThreadPerTaskExecutor(threadFactory);
         for (int i = 0; i < THREADS; ++i) {
             // start a client thread
             Runnable task = () -> {
@@ -262,14 +265,15 @@ public class LastNodeToLeaveRemoteEJBTestCase extends AbstractClusteringTestCase
                         startedNodes.containsAll(connectedNodes) && startedNodes.containsAll(totalAvailableNodes));
             }
         }
-        System.out.println("\n *** Stopping test case test() \n");
-    }
+        System.out.println("\n *** Stopping test case test() \n");}
+    
 
     /*
      * Dummy method to allow returning Rule-collected results back to the test case for validation
      * Byteman will populate the return value when the method is called.
      */
-    @SuppressWarnings("static-method")
+    
+@SuppressWarnings("static-method")
     private Map<String, List<List<Set<String>>>> getTestResult() {
         // injected code will return the actual result
         return null;

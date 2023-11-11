@@ -13,6 +13,6 @@ import jakarta.inject.Named;
 public final class ChunkPartitionCollector implements PartitionCollector {
     @Override
     public Serializable collectPartitionData() throws Exception {
-        return Thread.currentThread().getId();
+        return Thread.currentThread().threadId();
     }
 }
