@@ -66,11 +66,9 @@ ThreadFactory threadFactory = Thread.ofVirtual().factory();
             }
         } finally {
             executor.shutdown();
-        }}
-    
-
-    
-private static class ManagedObject implements AutoCloseable {
+        }
+    }
+    private static class ManagedObject implements AutoCloseable {
         private volatile boolean created = false;
         private volatile boolean closed = false;
         private final Runnable closeTask;

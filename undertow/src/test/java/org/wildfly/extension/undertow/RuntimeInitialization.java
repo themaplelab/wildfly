@@ -145,12 +145,9 @@ ThreadFactory threadFactory = Thread.ofVirtual().factory();
             sb5.install();
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
-        }}
-
-    
-
-    
-private static final class NullService implements org.jboss.msc.service.Service<ControlledProcessStateService> {
+        }
+    }
+    private static final class NullService implements org.jboss.msc.service.Service<ControlledProcessStateService> {
         @Override
         public void start(StartContext context) {
 

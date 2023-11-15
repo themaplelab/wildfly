@@ -65,8 +65,7 @@ public class StrictMaxUnitTestCase {
      */
     @Test
     public void testMultiThread() throws Exception {
-ThreadFactory threadFactory = Thread.ofVirtual().factory();
-
+        ThreadFactory threadFactory = Thread.ofVirtual().factory();
         MockBean.reset();
         StatelessObjectFactory<MockBean> factory = new MockFactory();
         final Pool<MockBean> pool = new StrictMaxPool<MockBean>(factory, 10, 60, TimeUnit.SECONDS);
@@ -111,11 +110,9 @@ ThreadFactory threadFactory = Thread.ofVirtual().factory();
 
         assertEquals(20, used.intValue());
         assertEquals(10, MockBean.getPostConstructs());
-        assertEquals(10, MockBean.getPreDestroys());}
-    
-
-    
-@Test
+        assertEquals(10, MockBean.getPreDestroys());
+    }
+    @Test
     public void testTooMany() {
         MockBean.reset();
         StatelessObjectFactory<MockBean> factory = new MockFactory();

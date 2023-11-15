@@ -218,6 +218,6 @@ ThreadFactory threadFactory = Thread.ofVirtual().factory();
             verify(closeTask).run();
         } finally {
             service.shutdownNow();
-        }}
-    
+        }
+    }
 }
