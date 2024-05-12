@@ -27,6 +27,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ThreadFactory;
 
 /**
  *
@@ -55,12 +56,14 @@ public class WeldResourceInjectionServicesTestCase {
      */
     @Test
     public void testWebServiceContextInject(@ArquillianResource URL deploymentUrl) throws Exception {
+ThreadFactory threadFactory = Thread.ofVirtual().factory();
+
         QName serviceName = new QName("http://www.jboss.org/jboss/as/test/TestWS", "TestService");
         URL wsdlUrl = new URL(deploymentUrl.toExternalForm() + "/" + TestWSImpl.SERVICE_NAME + "?wsdl");
         TestWS testService = Service.create(wsdlUrl, serviceName).getPort(TestWS.class);
 
         int workerCount = 20;
-        ExecutorService executor = Executors.newFixedThreadPool(workerCount);
+        ExecutorService executor = Executors.newThreadPerTaskExecutor(threadFactory);
         List<Future<String>> results = new ArrayList<>();
         try {
             for (int i = 0; i < workerCount; i++) {
@@ -71,10 +74,11 @@ public class WeldResourceInjectionServicesTestCase {
             }
         } finally {
             executor.shutdown();
-        }
-    }
+        }}
+    
 
-    private class Worker implements Callable<String> {
+    
+private class Worker implements Callable<String> {
 
         TestWS service;
 

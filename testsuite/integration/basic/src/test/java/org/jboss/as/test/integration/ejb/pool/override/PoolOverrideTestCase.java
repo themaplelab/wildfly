@@ -32,6 +32,7 @@ import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import java.util.concurrent.ThreadFactory;
 
 /**
  * Tests {@link org.jboss.ejb3.annotation.Pool} annotation usage and the &lt;pool&gt;
@@ -179,7 +180,9 @@ public class PoolOverrideTestCase {
      * @throws Exception
      */
     private void testSimulatenousInvocationOnEJBsWithSingleInstanceInPool(final AbstractSlowBean bean) throws Exception {
-        final ExecutorService executorService = Executors.newFixedThreadPool(2);
+ThreadFactory threadFactory = Thread.ofVirtual().factory();
+
+        final ExecutorService executorService = Executors.newThreadPerTaskExecutor(threadFactory);
         Future<Void> firstBeanInvocationResult = null;
         Future<Void> secondBeanInvocationResult = null;
         try {
@@ -220,13 +223,14 @@ public class PoolOverrideTestCase {
         // if none failed, then it's an error too
         if (!firstInvocationFailed && !secondInvocationFailed) {
             Assert.fail("Both first and second invocations to EJB passed. Only one was expected to pass");
-        }
-    }
+        }}
+    
 
     /**
      * Invokes the {@link AbstractSlowBean#delay(long)} bean method
      */
-    private class PooledBeanInvoker implements Callable<Void> {
+    
+private class PooledBeanInvoker implements Callable<Void> {
 
         private AbstractSlowBean bean;
         private long beanProcessingTime;
