@@ -115,7 +115,7 @@ public class TimerTask implements Runnable {
                                         .append("Thread: ")
                                         .append(otherThread.getName())
                                         .append(" Id: ")
-                                        .append(otherThread.getId())
+                                        .append(otherThread.threadId())
                                         .append(" of group ")
                                         .append(otherThread.getThreadGroup())
                                         .append(" is in state: ")
