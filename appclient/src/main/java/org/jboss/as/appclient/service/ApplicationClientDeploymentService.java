@@ -61,7 +61,7 @@ public class ApplicationClientDeploymentService implements Service {
     public synchronized void start(final StartContext context) {
         final DeployTask task = new DeployTask();
         // TODO use executorServiceSupplier
-        Thread thread = new Thread(new DeploymentTask(new OperationBuilder(task.getUpdate()).build()));
+        Thread thread  = Thread.ofVirtual().unstarted(new DeploymentTask(new OperationBuilder(task.getUpdate()).build()));
         thread.start();
         consumer.accept(this);
     }

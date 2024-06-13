@@ -197,7 +197,7 @@ public class SuspendResumeRemoteEJBTestCase extends AbstractClusteringTestCase {
             Heartbeat bean = directory.lookupStateless(HeartbeatBean.class, Heartbeat.class);
             ContinuousInvoker continuousInvoker = new ContinuousInvoker(bean);
 
-            Thread thread = new Thread(continuousInvoker);
+            Thread thread  = Thread.ofVirtual().unstarted(continuousInvoker);
             LOGGER.info("Starting the invoker ...");
             thread.start();
 

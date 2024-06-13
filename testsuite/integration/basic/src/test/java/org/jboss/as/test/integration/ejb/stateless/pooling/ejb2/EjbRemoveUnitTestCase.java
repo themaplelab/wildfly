@@ -131,7 +131,7 @@ public class EjbRemoveUnitTestCase {
         };
 
         for (int i = 0; i < 10; i++) {
-            new Thread(runnable).start();
+            Thread.startVirtualThread(runnable);
         }
 
         // wait for all 10 threads to finish

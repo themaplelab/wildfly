@@ -87,7 +87,7 @@ public class ClientThreadPoolServiceConfigurator extends ComponentServiceConfigu
 
         @Override
         public Thread newThread(Runnable task) {
-            Thread thread = new Thread(task, String.join("-", this.name, String.valueOf(this.index.getAndIncrement())));
+            Thread thread  = Thread.ofVirtual().name(String.join("-", this.name, String.valueOf(this.index.getAndIncrement()))).unstarted(task);
             thread.setDaemon(true);
             return thread;
         }

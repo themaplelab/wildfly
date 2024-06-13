@@ -86,7 +86,7 @@ public class EJBReadWriteLockTest {
         Lock writeLock = this.ejbReadWriteLock.writeLock();
         // create a thread which will get hold of a write lock
         // and do some processing for 5 seconds
-        Thread threadHoldingWriteLock = new Thread(new ThreadHoldingWriteLock(latch, writeLock, 5000));
+        Thread threadHoldingWriteLock  = Thread.ofVirtual().unstarted(new ThreadHoldingWriteLock(latch, writeLock, 5000));
 
         // get a read lock
         Lock readLock = this.ejbReadWriteLock.readLock();

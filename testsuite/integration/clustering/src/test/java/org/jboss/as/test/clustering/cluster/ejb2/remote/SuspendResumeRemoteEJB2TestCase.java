@@ -202,7 +202,7 @@ public class SuspendResumeRemoteEJB2TestCase extends AbstractClusteringTestCase 
             HeartbeatRemote bean = home.create();
             ContinuousInvoker continuousInvoker = new ContinuousInvoker(bean);
 
-            Thread thread = new Thread(continuousInvoker);
+            Thread thread  = Thread.ofVirtual().unstarted(continuousInvoker);
             LOGGER.info("Starting the invoker ...");
             thread.start();
 

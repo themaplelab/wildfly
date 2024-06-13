@@ -137,9 +137,9 @@ public class AppClientWrapper implements Runnable {
         outputReader = new BufferedReader(new InputStreamReader(appClientProcess.getInputStream(), StandardCharsets.UTF_8));
         errorReader = new BufferedReader(new InputStreamReader(appClientProcess.getErrorStream(), StandardCharsets.UTF_8));
 
-        final Thread readOutputThread = new Thread(this, outThreadHame);
+        final Thread readOutputThread  = Thread.ofVirtual().name(outThreadHame).unstarted(this);
         readOutputThread.start();
-        final Thread readErrorThread = new Thread(this, errThreadHame);
+        final Thread readErrorThread  = Thread.ofVirtual().name(errThreadHame).unstarted(this);
         readErrorThread.start();
 
     }
